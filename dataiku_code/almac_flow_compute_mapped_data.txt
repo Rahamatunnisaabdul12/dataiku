@@ -1,0 +1,55 @@
+compute_mapped_data
+
+
+import dataiku
+import pandas as pd
+from jinja2  import Template
+from Dikusetting import dikusetting
+import traceback
+import temfile
+import boto3, os , json
+
+#load settings function 'this function must call first'
+Dikusettings.load_dataiku_function()
+transformed_folder_id="3DIpUqbM"
+
+def write_file_s3(content,file_name,dku_folder_id):
+    """
+purpose: upload/wirite  file into s3  
+parameters: content type<str> source response content,
+file_name type<str> source fil_name  ,
+ dku_folder_name type<str>  folder name
+Return: type<bool> True
+"""
+source_s3_bucket=dtaiku.folder(dku_folder_id)
+source_s3_bucket.upload_stream(file_name,content)
+return True
+except Exception:
+   raise Exception(f"Excepton occour write_file_s3:{traceback.format_exc()}")
+
+#Read recipe inputs
+inpu_output_source=dataikuget_cutom_variable()["input_output_source"]
+study_id=dataiku.get_get_custom_varible()['study_id]
+time_stamp=dataikuget_custom_variables()['gloalexceution time']
+
+#get preprocess csvfile as adataframe
+pre_process_file_name=dataiku.get_custom_variables()["pre_process_file_name"]
+preprocess_folder=dataiku.folder("JUsksflz")
+data_csv=preprocess_folder.get_download_stream(re_process_file_name)
+#read pre-process cs file as a dataframe
+preprocess_df=pd.read_csv(datracsv,encoding='utf-8', dtye=str , na_filter=False, keep_default_na=False)
+
+veeva_edc_templates_s3=dataiku.Folder("U5ror01")
+veeva_edc_templates_s3_info=veeva_edc_templates_s3.get.info()
+
+json_templete_fie=dataiku.get_custom_variables()["xlst_template_name"]
+json_template=veeva_edc_templates_s3.get_download_stream(json_tamplate_file)
+json_filename=f"{input_out_source}_{study_id}_{time_stamp}.json
+tmp= tempfie.namedTempararyfile()
+with open(tmp.name,'wb') as f_read:
+      f_read.write(json_template.data)
+with open(tmp.name, 'r') as file:
+   json_template = template(fil.read())
+
+result_json=json_template.render(data=preprocsess_df.to_dict(orient="records"))
+

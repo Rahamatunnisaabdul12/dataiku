@@ -1,0 +1,315 @@
+file_name:(Add_Kit.j2)
+[{% for row in data if row['kitNumber'] != and row['visitName'] != and row['visitName'] != 'Screening and row['visitName'] != 'Randomization' %}
+{"data":
+{
+"study_name": "{{row['study_name']}}",
+"reopen": true,
+"submit": true,
+"change reason": "Updated by the integration",
+"form": {
+"study_country": "{{row['name']}}",
+"site": "{{row['siteCode']}}",
+"subject": "{{row['screening Number']}}", "eventgroup_name": "{{row['visitName']}}",
+"eventgroup sequence": 1,
+"event name": "{{row['visitName']}}",
+"form_name": "SR1",
+"form sequence": {{ row['formSequence'] | int}},
+"itemgroups": [
+{
+"itemgroup_name": "ig_SR1",
+"itemgroup_sequence": 1,
+"items": [
+{"item_name": "SR1_SRDTCDAT",
+"value": "{{row['visitDate']}}"
+},
+{
+"item_name": "SR1_SRORRESCMP01",
+"value": "{{row['kitNumber']}}"
+}
+]
+}
+]
+{% if not loop.last %), {% endif %}
+{% endfor %)
+]
+
+filename:Informed_Consent_Date.j2
+[
+{% for row in data if row['visitName'] == 'Screening and row['informed ConsentDate'] != '' %}
+{"data":
+{
+"study_name": "{{row['study_name']}}",
+"reopen": true,
+"submit": true,
+"change_reason": "Updated by the integration",
+"form": {
+"study_country": "{{row['name']}}",
+"site": "{{row['siteCode']}}", 
+"subject": "{{row['screening Number']}}", 
+eventgroup_name": "SCR"
+"eventgroup_sequence": 1,
+event_name":"SRC"
+"form_name": "DSIC",
+"form_sequence": 1,
+"itemgroups": [
+{ "itemgroup_name": "ig_IC", "itemgroup_sequence": 1,
+"items": [
+{ "item_name": "DSIC_DSSTDAT", "value": "{{row['informedConsentDate']}}"
+}]}]}
+}}
+{% if not loop.last %}, {% endif %}{% endfor %}
+]
+
+filename:graphics.j2
+[
+{% for row in data if row['dateOfBirth'] != and row['gender'] != and row['visitName'] == 'Screening' %}
+{"data":
+{
+"study_name": "{{row['study_name']}}",
+"reopen": true,
+"submit": true,
+"change_reason": "Updated by the integration",
+"form": {
+"study_country": "{{row['name']}}",
+"site": "{{row['siteCode']}}",
+"subject": "{{row['screening Number']}}",
+"eventgroup_name": "SCR",
+"eventgroup_sequence": 1,
+"event_name": "SCR",
+"form_name": "DM",
+"form_sequence": 1,
+"itemgroups": [
+{
+"itemgroup_name": "ig_DM",
+"itemgroup_sequence": 1,
+items": [ "
+{
+"item_name": "DM_BRTHYY",
+"value": "{{row['dateOfBirth']}}"
+},
+{
+"item_name": "LBSEX",
+"value": "{{row['gender']}}"
+}
+]
+}
+{% if not loop.last %},{% endif %}{% endfor %}
+]
+
+
+filename:Add_Subject_Id.j2
+[
+{% for row in data %}
+{"data":
+{
+eventgroup name": "SCR", { "itemgroup name": "ig_SNA", { "itemname": "SNA_O_SCRNUM", "value": "{{row['screening Number'] [row['siteCode']|length:]}}"
+"study_name": "{{row['study_name"]}}", "reopen": true,
+"submit": true,
+"change reason": "Updated by the integration",
+"form": {
+"study_country": "{{row['name']}}",
+"site": "{{row['siteCode']}}", 
+"subject": "{{row['screening "eventgroup sequence": 1,
+"event_name": "SCR",
+"form name": "SNA",
+"form sequence": 1,
+"itemgroups": [
+{ "itemgroup name": "ig_SNA",
+"itemgroup_sequence": 1,
+"items": [
+{ "itemname": "SNA_O_SCRNUM", "value": "{{row['screening Number'] [row['siteCode']|length:]}}"
+}
+]
+}
+]
+}
+}}
+{% if not loop.last %}, {% endif %}{% endfor %}
+]
+
+
+file_name: veeva_edc MK3475062 MOCK_CDI_IRT_DEV1_Create_Casebook.j2
+[
+{% for row in data if row['visitName'] == 'Screening' %)
+{
+"data":
+{
+  "study_name": "({row['study_name']}}",
+"subjects":
+[
+{
+"study_country": "((row["name"]}}",
+"site": "{{row['siteCode']}}",
+"subject": "((row['screening Number']}}"
+}
+]
+}
+}
+{% if not loop.last %}, {% endif %} {% endfor %}
+]
+
+
+filename: randomization.j2
+[ {% for row in data if row['visitName'] == 'Randomization' %}
+{"data":
+{
+"study_name": "{{row['study_name']}}",
+reopen": true, "
+submit": true, "
+change_reason": "Updated by the integration",
+change_reason": "Updated by the integration",
+study_country": "{{row['name']}}", "
+site": "{{row['siteCode']}}",
+"subject": "{{row['screening Number']}}",
+"eventgroup_name": "SCR",
+"eventgroup_sequence": 1,
+"event_name": "SCR",
+"form_name": "DSRND",
+"form_sequence": 1,
+"itemgroups": [
+{
+"itemgroup_name": "ig_DSRND",
+"itemgroup_sequence": 1,
+"items": [
+{
+"item_name": "DSRND_DSSTDAT",
+"value": "{{row['visitDate']}}"
+}
+{
+"item_name": "DSRND_DMRNDNUM",
+"value": "{{row['randomizationNumber']}}"
+}
+{
+"item_name": "DSRND_DMSTRATA",
+"value": "{{row['Strata']}}"
+}
+]
+}
+]
+}
+}}
+{% if not loop.last %), {% endif %}{% endfor %}
+]
+
+filename:veeva_edc_MK3475062 MOCK_CDI_IRT_DEV1_Set_Event_Date.j2
+[
+{% for row in data if row['visitName'] 'Screening' %}
+{
+data": "
+{
+"study_name": "[{row['study_name"]}}",
+"events": [
+{
+"study_country": "{{row['name']}}",
+"site": "{{row['siteCode']}}",
+"subject": "((row['screening Number']}}",
+"eventgroup_name": "SCR",
+"eventgroup_sequence": 1,
+"event_name": "SCR",
+"date": "({row['visitDate']}}"
+}
+]
+}
+}
+{% if not loop.last %}, {% endif %} {% endfor %}
+]
+
+
+filename:veeva_edc MK3475062 MOCK CDI IRT_DEV1_Set Visit Date.j2
+[
+ {% for row in data if row['visitName'] != and row['visitName'] != 'Screening and row['visitName'] != 'Randomization' %}
+{
+ "data":
+{
+"study_name": "{{row['study_name']}}",
+"events": [
+{
+"study_country": "{{row['name']}}",
+"site": "[(row['siteCode']}}",
+"subject": "{{row['screening Number']}}",
+"eventgroup_name": "{{row['visitName']}}",
+"eventgroup_sequence": 1,
+"event_name": "({row['visitName']}}",
+"date": "[[row['visitDate']))"
+}
+]}
+}
+{% if not loop.last %), {% endif %} {% endfor %)
+]
+
+filename:templet.j2
+[
+{% for row in data %}
+{
+"data": {
+"study_name": "{{row['study_name']}}",
+"reopen": true,
+"submit": true,
+reason": "Integration Update", "change reason
+"form": {
+"study_country": "{{row['CE.SITE_COUNTRY']}}",
+"site": "{{row['CE.SITENUM']}}",
+"subject": "{{row['SubjectKey']}}",
+"eventgroup_name": "{{row['eventgroup_name']}}",
+"eventgroup_sequence": 1,
+"event_name": "{{row['event_name']}}",
+"form_name": "{{row['FormOID']}}",
+"form_sequence": {{row['form_sequence']}},
+"itemgroups": [
+{
+"itemgroup_name": "{{row['ItemGroupOID']}}",
+"itemgroup_sequence": 1,
+"items": [
+{
+"item_name": "VCET_CETPT",
+"value": "{{row['CE.VCETTPTNUM']}}"
+},
+{
+"item_name": "VCET_CEENTΡΤ",
+"value": "{{row['CE.VCETENTPT']}}"
+},
+{
+"item_name": "VCET_CEENDAT_EVRC",
+"value": "{{row['CE.VCETDTC']}}"
+},
+{
+"itemname": "VCET_CELOC",
+"value": "[[row['CE.VCETLOC']))"
+},
+{
+"item-name": "VCET_CETERM",
+"value": "{{row['CE.VCETTERM"]}}"
+}
+{
+"Itemname": "VCET_CEOCCUR_EVRC",
+"value": "[[row['CE. VCETOCCURVRC*]}}"
+},
+{
+"itemname": "VCET_CESTDAT_EVRC",
+"value": "{{row['CE.VCETSTDTC']}}"
+},
+{
+"itemname": "VCET_CESEV_EVRC",
+"value": "{{row['CE.VCETSEV1"]}}"
+},
+{
+"itemname": "VCET_LDIAM",
+"value": "[[row['CE.VCETLDIAMMM"]}}"
+},
+{
+"itemname": "VCET VSORRES TEMP",
+"value": "[[row['CE.VCETORRESTEMP"]}}",
+},
+{
+"unit value": "{{row['CE.VCETORRESUTEMP"]}}"
+"itemname": "VCET VSLOC TEMP",
+"value": "{{row['CE.VCETLOCTM"]}}"
+}]}]}}
+}
+{%if not loop last %}, {% endif %){% endfor %}
+]
+
+
+
+
+

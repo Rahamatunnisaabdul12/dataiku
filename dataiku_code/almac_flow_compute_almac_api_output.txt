@@ -1,0 +1,134 @@
+filename:compute_almac_api_output
+import dataiku
+import hmac
+import hashlib
+import json
+import pandas as pd
+import random
+import requests
+import string
+import time
+import traceback
+  from base64 import b64encode, b65decode
+from datetime import datetime
+from Dikusettings import Dikusettings
+from urllib.parse impor quote
+
+#load settings function "this function must be called first"
+Dikusettings.load_dataiku_function()
+almac_output_source_folder_id="17etjp7j"
+inpit_source=dataiku.get_custom_variables()["input_source"]
+study_id=dataiku.get_custom_variables()["study_id"]
+global_execution_time=dataiku.get_custom_variables()["globalexecutiontime"]
+source_file_name=f"{input_source}_{study_id}_{global_execution_time}.json"
+
+def write_file_s3(content,file_name,dku_folder_id):
+
+"""
+purpose: upload/wrote file into s3
+parameters: content type<str> source response content,
+file_name type<str> source file name,
+dku_folder_name type<str> folder name
+return: type<bool> True
+"""
+try:
+ source_s3_bucket=dataiku.folder)dku_folder_id)
+source_s3_bucket.upload_stream(file_name,content)
+return True
+except Exception:
+    raise Exception(f"Exception occurs on write_file_s3:{tracback_format_exc()}")
+
+def generate_random_nonce():
+  """
+random alphanumeric str of len 32 to be generated
+"""
+characters=string.ascii_letters_string.digits
+return ''.join(random.choices(characters,k=32))
+
+class AlmacAPI:
+   def _init_(self,userid,secre_key,uri,method,request_params):
+     if not all([userid,secret_key,uri,,method,request_params]):
+       raise Exception("credentials/requeat_params missing : please provide client-id, secret_key, url,requesr,body")
+self.userid=userid
+#secret key to be encoded as base64 string
+self.secret_key=b64decode(secret_key)
+self.uri=uri
+self.method=method
+#request parameters are passed as request body
+self.request_params=json.dumps(request_params,sort_key=True).encoded()
+self.once=generate_random_nonce()
+self.timestamp=generate_epoch_timestamp()
+self.session=request.session()
+
+def gethmac_request)signature(self):
+"""
+to create the signature
+1. cocncate the values of fields listed bellow into a single string(no space/characters in between  any of value
+fileds:(user ID/request/Uri/Times stamp/nonce/request body)
+2. convet the string generated in steo 1 to UTF8
+3. use the HMACSHA256 hashing algorithm to hash the string, passing the secrete key
+4.convert the hash to base 64 encoding.
+"""
+#uri is first encode in UTF-8 format and then with percentage encoding
+#quote module of urllib.parse does bith the encoding
+encoded_uri=quote(self.uri, safe='').lower()
+
+#generate an MD5 of the request body & encode it as a base 64 string
+if self.request_params:
+md5_hash= hashlib.md5(self.request_params).digest()
+encode_request_params = b64encode (md5_hash).decode()
+
+#Signature is created following the 4 steps mentioned in the function doc string
+signature = f"(self.userid){self.method}{encoded_uri}{self.timestamp]{self.nonce} {encode_request_params}"
+signature_utf8= signature.encode()
+hashed_signature= hmac.new(self.secret_key, signature_utf8, hashlib.sha256).digest()
+hashed_base64 b64encode (hashed_signature).decode()
+return hashed_base64
+
+def get_hmac_authentication_header(self):
+"""
+The HMAC authentication header is created by joining all the fields separated by colon as below: authorisation str: hmacauth UserId: RequestSignatureInBase64: Nonce: RequestTimestamp
+"""
+authorization_str = f"hmacauth (self.userid):self.get_hmac_request_signature()): self.nonce]: {self.timestamp}"
+header {"Authorization": authorization_str, 'Content-Type': 'application/json'}
+return header
+
+def get_data(self):
+response = self.session.post(self.uri, data=self.request_params, headers=self.get_hmac_authentication_header(), verify=false)
+response.raise_for_status ()
+if not response:
+raise Exception (f"Problem retrieving data from [self.uri}")
+return response.json(), response.status_code, response.content
+def close_session (self):
+"""close the session when done
+"""
+self.session.close()
+
+
+if_name == '_main__':
+today datetime.today()
+start_date= (today.replace(hour=0, minute=0, second=0)).strftime("%Y-%m-%d %H:%M")
+end_date= (today.replace(hour=23, minute=59, second=59)).strftime("%Y-%m-%d %H:%M")
+params = {"startRange": start_date, "endRange": end_date}
+#params = json. loads (dataiku.get_custom_variables() ["api_params"])
+if len(params) = 0:
+today datetime.today()
+start_date= (today.replace(hour=0, minute=0, second=0)).strftime("%Y-%m-%d %H:%M")
+end_date= (today.replace(hour=23, minute=59, second=59)).strftime("%Y-%m-%d %H:%M")
+#params = {"startDate": start_date, "endDate": end_date}
+client_id = DikuSettings.get_secret("almac_clientid")
+secret_key = DikuSettings.get_secret("almac_secret_key")
+method = dataiku.get_custom_variables() ["api_request_method"]
+almac_url dataiku.get_custom_variables() ["study_source_url"]
+#credentials are extracted from config file
+api = AlmacAPI(
+client_id, secret_key, method, params,
+almac_url,
+)
+data, status_code, content api.get_data()
+if status_code == 200:
+almac_api_output_df = pd.json_normalize(data)
+almac_api_output = dataiku.Dataset("almac_api_output")
+almac_api_output.write_with_schema (almac_api_output_df)
+#write the json content to a file and save in $3
+write_file_s3 (content, source_file_name, almac_output_source_folder_id)

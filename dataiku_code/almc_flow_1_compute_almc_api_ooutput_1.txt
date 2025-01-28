@@ -1,0 +1,36 @@
+compute_almc_api_ooutput_1
+import dataiku
+import pandas as pd, numpy as np
+from dataiku import pandasutils as pdu
+from zipfile import ZipFile
+import re
+import os, json, boto3
+from DikuSetting import DikuSettings.
+from DikuAws Common import DikuAWS Common
+from Dikulog import Log
+
+## CONNECTING TO AWS ##
+#Loads the Dataiku Settings to retrieve access keys to connect to AWS.
+DikuSettings.load_dataiku_function ()
+aws_common_obj = DikuAWSCommon ()
+log_obj Log()
+
+
+#Write recipe outputs
+source_s3 dataiku. Folder ("bPKSBfDN")
+
+Bucket=dataiku.get_custom_variables() ["bucket"]
+Prefix = dataiku.get_custom_variables() ["key"]
+_,filename Prefix.split("/")
+file_name=aws_common_obj.download_file_from_s3 (Bucket, Prefix, filename)
+
+with open(file_name, "rb") as f:
+source_s3.upload_stream(filename, f)
+
+with open(file_name, "r") as f:
+json_data = json.load(f)
+
+
+Src_dataset_df = pd.json_normalize(json_data)
+almac_api_output = dataiku. Dataset("almac_api_output_1")
+almac_api_output.write_with_schema (Src_dataset_df)

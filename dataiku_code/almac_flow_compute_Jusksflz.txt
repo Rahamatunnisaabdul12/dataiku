@@ -1,0 +1,72 @@
+compute_Jusksflz
+
+import dataiku
+import pandas as pd
+from dataiku import pandasutil as pud
+from Dikusetting import dikusetting
+import traceback
+import temfile
+import json
+import csv
+import copy
+
+#load settings function 'this function must call first'
+Dikusettings.load_dataiku_function()
+pre_process_folder_id="JUsksfLz"
+
+diku_df=dataiku.dataset("almac_api_output_prepared_joined")
+df=diku_df.get_dataframe(infer_with_pandas=False, keep_default_na=False)
+
+new_rows=[]
+for index,row in df.iterrows():
+     if row['kit'] !="":
+       list_kit=json.loads(row['kit'])
+        for index, individual_kit in enumerate(list_kit):
+          new_row=row.copy()
+            for k,v in individual_kit.items():
+              new_row[k]=v
+               new_row["formsequence"]= index+1
+               new_rows.append(new_row)
+  else:
+row['kitNUMber']=""
+row['forsquence']=""
+new_rows.append(row)
+
+
+new_df=pd.DAtaframe(new_rows)
+
+def upload_to_s3(dataset_name,s3_folder_id, output_filename):
+    """
+purpose: upload file to s3 bucket 
+parameters: dataset_name type<str> dataset name,
+s3_folder_name type<str> folder name of s3 ,
+ output_filename type<str> file name
+Return: type<bool> true/false
+"""
+try:
+#diku_df=dataiku.Dataset(dataset_name)
+#df=diku_df.get_dataframe(infer_with_pandas=False,keep_default_na=False)
+tmp=temfile.namedTemporaryFile()
+dataset_name.to_csv(tmp.name,index=Fasle)
+data=None
+with open(tmp.name,'rb') as f_obj:
+ data=_f_obj.read()
+
+#write recipe outputs
+pre_process_s3_bucket=dataiku.folder(s3_foler_id)
+pre_process_s3_bucket.upload_stream(output_filename,data)
+return True
+except Exception:
+raise Exception(f"Exception occuorupload_to_s3:{traceback.format_exc()}")
+return False
+
+#fetch file name
+pre_process_filename=dataiku.get_custom_variables(["pre_process_filename"]
+
+#upload to s3
+upload_to_s3(new_df,pre_process_folder_id,pre_process_file_name)
+
+new_df["row_number]=range(1,len(new_df)+1)
+almac_cleaned_data=dataiku.Dataset("almac_cleaned_data")
+almac_cleaned_data.write_with_schema(new_df)
+  
